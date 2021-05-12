@@ -3,63 +3,98 @@ import sys
 import subprocess
 import socket
 import ipaddress
+import time
 
 def help():
     print("Function _ help")
+    print("-h Affiche ce message")
+    print("-p Ping")
+    print("-sp Ping les ports via socket")
+    print("-o N'affiche pas le retour dans le cli mais dans des fichiers")
 
-def ping():
-    print("Function _ ping")
-    network = input("Entrez votre réseau à ping avec le cidre : (par défaut 192.168.1.0/24) ") 
-    if network == "":
-        network="192.168.1.0/24"
-
-    fichier = open("ip_online_.txt", "a+")
-    for addr in ipaddress.IPv4Network(network):
+def ping(export,addr,fichier):
         p = subprocess.run('ping -n 1 -w 1 '+str(addr),stdout=subprocess.PIPE)
-        if (p.returncode == 1):
-            print("c'est pas passé avec "+str(addr))
-        elif(p.returncode == 0):
-            print("c'est passé avec "+str(addr))
-            fichier.write(str(addr)+"\n")
-        else:
-            print("WTF avec " + str(addr))
-    fichier.close()
+        if (p.returncode == 0):
+            if(export):
+                fichier.write("L'ip "+str(addr)+" a repondu\n")
+            else:
+                print("L'ip "+str(addr)+" a repondu")
+        #elif(p.returncode == 1):
+        #    if(export):
+        #        fichier.write("L'ip "+str(addr)+" n'a pas repondu\n")
+        #    else:
+        #        print("L'ip "+str(addr)+" n'a pas  repondu\n")
     
-def socket_ping():
-    print("Function _ socket_ping")
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def socket_ping(export,addr,fichier,sock):
     ports=[20,21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080]
-    network = input("Entrez votre réseau à ping avec le cidre : (par défaut 192.168.1.0/24) ") 
-    if network == "":
-        network="192.168.1.0/24"
-
-    fichier = open("ip_online_.txt", "a+")
-    for addr in ipaddress.IPv4Network(network):
-        for i in ports:
-            result = sock.connect_ex((str(addr),i))
-            print(i)
-        if result == 0:
-            print("Le port "+i+" est ouvert sur l'ip "+(str(addr)))
-            fichier.write("Le port "+i+" est ouvert sur l'ip "+(str(addr))+"\n")
-        else:
-            print("Le port "+i+" est fermé sur l'ip "+(str(addr)))
-    fichier.close()
-
-
-def export():
-    print("Function _ export")
+    #ports=[22,80]
+    for i in ports:
+        print("Time : "+str(time.localtime().tm_hour)+"heures "+str(time.localtime().tm_min)+"minutes "+str(time.localtime().tm_sec+"Ping de "+(str(addr))+" sur le port "+str(i)+" en cours....)+"secondes.")
+        if sock.connect_ex((str(addr),i)) == 0:
+            if(export):
+                fichier.write("Le port "+str(i)+" est ouvert sur l'ip "+(str(addr))+"\n")
+            else:
+                print("Le port "+str(i)+" est ouvert sur l'ip "+(str(addr)))
+        #else:
+        #    if(export):
+        #        fichier.write("Le port "+str(i)+" n'est pas ouvert sur l'ip "+(str(addr))+"\n")
+        #    else:
+        #        print("Le port "+str(i)+" n'est pas ouvert sur l'ip "+(str(addr))+"\n")
 
 def sous_domaine():
     print("Function _ sous_domaine")
 
-for i in range(0,len(sys.argv)):
-    if str(sys.argv[i]) == "-h":
+def ip_selection(array):
+    network = input("Entrez votre réseau à ping avec le cidre : (par défaut 192.168.1.0/24) ") 
+    if network == "":
+        network="192.168.1.0/24"
+
+    if(array[2]):
+        print("Function _ ping _ selectioné")
+        fichier = open("ip_online.txt", "a+")
+    if(array[3]):
+        print("Function _ socket_ping _ selectioné")
+        second_fichier = open("port_open.txt", "a+")
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
+    for addr in ipaddress.IPv4Network(network).hosts():
+        print("<---------------"+str(addr)+"--------------->")
+        if(array[2]):
+            ping(array[1],addr,fichier)
+        if(array[3]):
+            socket_ping(array[1],addr,second_fichier,sock)
+        
+
+    if(array[2]):
+        fichier.close()
+    if(array[3]):
+        second_fichier.close()
+
+def menu():
+    array=[0,0,0,0,0]
+    for i in range(0,len(sys.argv)):
+        if str(sys.argv[i]) == "-h":
+            array[0]=1
+        elif str(sys.argv[i]) == "-o":
+            array[1]=1
+        elif str(sys.argv[i]) == "-p":
+            array[2]=1
+        elif str(sys.argv[i]) == "-sp":
+            array[3]=1
+        elif str(sys.argv[i]) == "-sd":
+            array[4]=1
+    return array
+
+def main():
+    array=menu()
+    if array[0] == 1:
         help()
-    elif str(sys.argv[i]) == "-p":
-        ping()    
-    elif str(sys.argv[i]) == "-sp":
-        socket_ping()
-    elif str(sys.argv[i]) == "-o":
-        export()
-    elif str(sys.argv[i]) == "-sd":
+        exit()
+    elif array[2] == 1 | array[3] == 1:
+        ip_selection(array)
+    elif array[4] == 1:
         sous_domaine()
+
+if __name__ == "__main__":
+    main()
