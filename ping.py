@@ -29,11 +29,11 @@ def socket_ping(export,addr,fichier,sock):
     ports=[20,21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080]
     #ports=[22,80]
     for i in ports:
-        print("Ping de "+(str(addr))+" sur le port "+str(i)+" en cours .... Time : "+str(time.localtime().tm_hour)+"heures "+str(time.localtime().tm_min)+"minutes "+str(time.localtime().tm_sec)+"secondes." )
         if sock.connect_ex((str(addr),i)) == 0:
             if(export):
                 fichier.write("Le port "+str(i)+" est ouvert sur l'ip "+(str(addr))+"\n")
             else:
+                print("Ping de "+(str(addr))+" sur le port "+str(i)+" en cours .... Time : "+str(time.localtime().tm_hour)+"heures "+str(time.localtime().tm_min)+"minutes "+str(time.localtime().tm_sec)+"secondes." )
                 print("Le port "+str(i)+" est ouvert sur l'ip "+(str(addr)))
         #else:
         #    if(export):
@@ -57,7 +57,7 @@ def ip_selection(array):
 
 
     for addr in ipaddress.IPv4Network(network).hosts():
-        print("<---------------"+str(addr)+"--------------->")
+        #print("<---------------"+str(addr)+"--------------->")
         if(array[2]):
             ping(array[1],addr,fichier)
         if(array[3]):
