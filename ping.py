@@ -29,13 +29,22 @@ def socket_ping():
     print("Function _ socket_ping")
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ports=[20,21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080]
-    for i in ports:
-        result = sock.connect_ex(("192.168.1.16",i))
-        print(i)
-    if result == 0:
-        print("Le port est ouvert")
-    else:
-        print("fermé")
+    network = input("Entrez votre réseau à ping avec le cidre : (par défaut 192.168.1.0/24) ") 
+    if network == "":
+        network="192.168.1.0/24"
+
+    fichier = open("ip_online_.txt", "a+")
+    for addr in ipaddress.IPv4Network(network):
+        for i in ports:
+            result = sock.connect_ex((str(addr),i))
+            print(i)
+        if result == 0:
+            print("Le port "+i+" est ouvert sur l'ip "+(str(addr)))
+            fichier.write("Le port "+i+" est ouvert sur l'ip "+(str(addr))+"\n")
+        else:
+            print("Le port "+i+" est fermé sur l'ip "+(str(addr)))
+    fichier.close()
+
 
 def export():
     print("Function _ export")
