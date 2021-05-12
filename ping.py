@@ -29,7 +29,7 @@ def socket_ping(export,addr,fichier,sock):
     ports=[20,21,22,23,25,53,80,110,111,135,139,143,443,445,993,995,1723,3306,3389,5900,8080]
     #ports=[22,80]
     for i in ports:
-        print("Time : "+str(time.localtime().tm_hour)+"heures "+str(time.localtime().tm_min)+"minutes "+str(time.localtime().tm_sec+"Ping de "+(str(addr))+" sur le port "+str(i)+" en cours....)+"secondes.")
+        print("Ping de "+(str(addr))+" sur le port "+str(i)+" en cours .... Time : "+str(time.localtime().tm_hour)+"heures "+str(time.localtime().tm_min)+"minutes "+str(time.localtime().tm_sec)+"secondes." )
         if sock.connect_ex((str(addr),i)) == 0:
             if(export):
                 fichier.write("Le port "+str(i)+" est ouvert sur l'ip "+(str(addr))+"\n")
@@ -50,10 +50,8 @@ def ip_selection(array):
         network="192.168.1.0/24"
 
     if(array[2]):
-        print("Function _ ping _ selectioné")
         fichier = open("ip_online.txt", "a+")
     if(array[3]):
-        print("Function _ socket_ping _ selectioné")
         second_fichier = open("port_open.txt", "a+")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
