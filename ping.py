@@ -12,21 +12,22 @@ def help():
     print("-sp Ping les ports via socket incompatible avec -p & -sd")
     print("-sd Ping les sous domaines incompatible avec -sp & -p")
     print("-o N'affiche pas le retour dans le cli mais dans des fichiers")
+    exit()
 
 def ping(export,addr,fichier):
-        p = subprocess.run('ping -n 1 -w 1 '+str(addr),stdout=subprocess.PIPE)
+        p = subprocess.run('ping -n 1 -w 1 '+str(addr),stdout=subprocess.PIPE,shell=True)
         if (p.returncode == 0):
             if(export):
                 fichier.write("L'ip "+str(addr)+" a repondu\n")
             else:
                 print("")
                 print('\033[2;32m'+str(addr)+' \033[0;0m')
-                #print("L'ip "+str(addr)+" a repondu")
+                print("L'ip "+str(addr)+" a repondu")
         else:
             if(export):
                 fichier.write("L'ip "+str(addr)+" n'a pas repondu\n")
             else:
-                #print("L'ip "+str(addr)+" n'a pas repondu\n")
+                print("L'ip "+str(addr)+" n'a pas repondu\n")
                 print('\033[2;31m'+str(addr)+' \033[0;0m',end="")
 
 def socket_ping(export,addr,fichier,sock):
@@ -53,7 +54,7 @@ def sous_domaine():
 def ip_selection(array):
     network = input("Entrez votre réseau à ping avec le cidre : (par défaut 192.168.1.0/24) ") 
     if network == "":
-        network="192.168.1.0/24"
+        network="192.168.157.0/24"
     fichier = ""
     second_fichier = ""
     if(array[2] and array[1]):
@@ -62,6 +63,8 @@ def ip_selection(array):
         if(array[1]):
             second_fichier = open("port_open.txt", "a+")
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(0.1)
+
 
 
     for addr in ipaddress.IPv4Network(network).hosts():
@@ -96,15 +99,14 @@ def main():
     array=menu()
     if array[0] == 1:
         help()
-
-        exit()
     elif array[2] == 1 and array[3] == 1 or array[2] == 1 and array[4] == 1 or array[4] == 1 and array[3] == 1:
         help()
-        exit()
     elif array[2] == 1 or array[3] == 1:
         ip_selection(array)
     elif array[4] == 1:
         sous_domaine()
+    else:
+        help()
 
 if __name__ == "__main__":
     main()
